@@ -1,0 +1,8 @@
+rootProject.name = 'JugLambda'
+include 'HelloWorld'
+include 'Benchmark'
+include 'ExploreEnvironment'
+include 'Bot'
+include 'Binaries'
+include 'S3'
+

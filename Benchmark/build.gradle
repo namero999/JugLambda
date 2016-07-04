@@ -1,0 +1,3 @@
+dependencies {
+    compile 'gov.nist.math:scimark:2.0'
+}

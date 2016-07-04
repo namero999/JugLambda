@@ -1,0 +1,57 @@
+subprojects {
+
+    apply plugin: 'java'
+
+    compileJava.options.encoding = 'UTF-8'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        compile 'org.projectlombok:lombok:1.16.8'
+        testCompile 'junit:junit:4.12'
+    }
+
+    task buildLambdaJar(type: Jar) {
+
+        from compileJava
+        from('src/main/resources') {
+            fileMode 0755
+        }
+
+        into('lib') {
+            from configurations.runtime
+        }
+
+    }
+
+    buildLambdaJar.dependsOn clean
+
+    task create(type: Exec) {
+        commandLine 'cmd', '/c', "aws lambda create-function " +
+                "--function-name ${project.name} " +
+                "--runtime java8 " +
+                "--role arn:aws:iam::333715427485:role/lambda_basic_execution " +
+                "--handler lol.corrado.${project.name}::run " +
+                "--memory-size 128 " +
+                "--timeout 60 " +
+                "--zip-file fileb://build/libs/${project.name}.jar"
+    }
+
+    task update(type: Exec) {
+        commandLine 'cmd', '/c', "aws lambda update-function-code " +
+                "--function-name ${project.name} " +
+                "--zip-file fileb://build/libs/${project.name}.jar"
+    }
+
+    task invoke(type: Exec) {
+        commandLine 'cmd', '/c', "aws lambda invoke --function-name ${project.name} out.txt"
+    }
+
+    [create, update]*.dependsOn buildLambdaJar
+
+}
